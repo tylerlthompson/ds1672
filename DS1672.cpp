@@ -124,52 +124,24 @@ void DS1672::disable() {
 
 DateTime DS1672::get_time() {
     reg_read = 0;
-    reg_read = reg_read | get_reg(0x03);
-    reg_read = reg_read << 24;
-    Serial.print("Read Reg 0x03: ");
-    Serial.println(reg_read, BIN);
-
-    reg_read = reg_read | get_reg(0x02);
-    reg_read = reg_read << 16;
-    Serial.print("Read Reg 0x02: ");
-    Serial.println(reg_read, BIN);
-
-    reg_read = reg_read | get_reg(0x01);
-    reg_read = reg_read << 8;
-    Serial.print("Read Reg 0x01: ");
-    Serial.println(reg_read, BIN);
-
-    reg_read = reg_read | get_reg(0x00);
-    Serial.print("Read Reg 0x00: ");
-    Serial.println(reg_read, BIN);
+    reg_read = reg_read | (uint32_t) get_reg(0x03) << 24;
+    reg_read = reg_read | (uint32_t) get_reg(0x02) << 16;
+    reg_read = reg_read | (uint32_t) get_reg(0x01) << 8;
+    reg_read = reg_read | (uint32_t) get_reg(0x00);
+    reg_read += SECONDS_FROM_1970_TO_2000;
     return {reg_read};
 }
 
 void DS1672::set_time(DateTime now) {
     reg_read = now.secondstime();
     byte t = 0;
-
-    t = t | reg_read;
-    Serial.println(reg_read, BIN);
-    Serial.println(t, BIN);
+    t = (byte) reg_read;
     set_reg(0x00, t);
-
-    t = 0;
-    reg_read = reg_read >> 8;
-    t = t | reg_read;
-    Serial.println(t, BIN);
+    t = (byte) (reg_read >> 8);
     set_reg(0x01, t);
-
-    t = 0;
-    reg_read = reg_read >> 8;
-    t = t | reg_read;
-    Serial.println(t, BIN);
+    t = (byte) (reg_read >> 16);
     set_reg(0x02, t);
-
-    t = 0;
-    reg_read = reg_read >> 8;
-    t = t | reg_read;
-    Serial.println(t, BIN);
+    t = (byte) (reg_read >> 24);
     set_reg(0x03, t);
 }
 
@@ -184,7 +156,7 @@ byte DS1672::get_reg(uint8_t address) {
 void DS1672::set_reg(uint8_t address, byte value) {
     Wire.beginTransmission(RTC_ADDRESS);
     Wire.write(address);
-    Wire.write(decToBcd(value));
+    Wire.write(value);
     Wire.endTransmission();
 }
 
