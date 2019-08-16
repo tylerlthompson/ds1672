@@ -35,6 +35,20 @@ static long time2long(uint16_t days, uint8_t h, uint8_t m, uint8_t s) {
     return ((days * 24L + h) * 60 + m) * 60 + s;
 }
 
+static uint8_t getWeekDay(uint16_t yy, uint16_t mm, uint16_t dd)
+{
+    //formula to get weekday number
+    int rst =
+            dd
+            + ((153 * (mm + 12 * ((14 - mm) / 12) - 3) + 2) / 5)
+            + (365 * (yy + 4800 - ((14 - mm) / 12)))
+            + ((yy + 4800 - ((14 - mm) / 12)) / 4)
+            - ((yy + 4800 - ((14 - mm) / 12)) / 100)
+            + ((yy + 4800 - ((14 - mm) / 12)) / 400)
+            - 32045;
+
+    return (rst+1)%7 ;
+}
 
 /*****************************************
         Public Functions
@@ -59,6 +73,16 @@ DateTime::DateTime (uint32_t t) {
     mm = t % 60;
     t /= 60;
     hh = t % 24;
+
+    // 12 hour calc
+    if(hh > 12){
+        hh_12h = hh - 12;
+        pm=true;
+    }
+    else {
+        pm = false;
+    }
+
     uint16_t days = t / 24;
     uint8_t leap;
     for (yOff = 0; ; ++yOff) {
@@ -76,11 +100,17 @@ DateTime::DateTime (uint32_t t) {
         days -= daysPerMonth;
     }
     d = days + 1;
+
+    uint16_t year;
+    year = yOff + 2000;
+    dow = getWeekDay(year, m, d);
 }
 
 
 
 DateTime::DateTime (uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec) {
+    dow = getWeekDay(year, month, day);
+
     if (year >= 2000)
         year -= 2000;
     yOff = year;
@@ -89,13 +119,16 @@ DateTime::DateTime (uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uin
     hh = hour;
     mm = min;
     ss = sec;
-}
 
-static uint8_t conv2d(const char* p) {
-    uint8_t v = 0;
-    if ('0' <= *p && *p <= '9')
-        v = *p - '0';
-    return 10 * v + *++p - '0';
+    // 12 hour calc
+    if(hh > 12){
+        hh_12h = hh - 12;
+        pm=true;
+    }
+    else {
+        pm = false;
+    }
+
 }
 
 uint32_t DateTime::secondstime() const {
@@ -105,12 +138,21 @@ uint32_t DateTime::secondstime() const {
     return t;
 }
 
-// UNIX time: IS CORRECT ONLY WHEN SET TO UTC!!!
-uint32_t DateTime::unixtime(void) const {
+uint32_t DateTime::unixtime() const {
     uint32_t t = secondstime();
     t += SECONDS_FROM_1970_TO_2000;  // seconds from 1970 to 2000
     return t;
 }
+
+char* DateTime::am_pm() {
+    if(pm) {
+        return "PM";
+    }
+    else {
+        return "AM";
+    }
+}
+
 
 void DS1672::enable() {
     // set EOSC bit to 0

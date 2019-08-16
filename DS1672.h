@@ -5,7 +5,7 @@
 #ifndef DS1672_h
 #define DS1672_h
 
-#include <Wire/Wire.h>
+#include <Wire.h>
 #include <Arduino.h>
 
 // DateTime (get everything at once) from JeeLabs / Adafruit
@@ -17,15 +17,19 @@ class DateTime {
         uint16_t year() const       { return 2000 + yOff; }
         uint8_t month() const       { return m; }
         uint8_t day() const         { return d; }
+        uint8_t hour_12h() const    { return hh_12h; }
         uint8_t hour() const        { return hh; }
         uint8_t minute() const      { return mm; }
         uint8_t second() const      { return ss; }
-        uint8_t dayOfWeek() const;
+        uint8_t dayOfWeek() const  { return dow; }
         uint32_t secondstime() const; // 32-bit times as seconds since 1/1/2000
-        uint32_t unixtime(void) const;
+        uint32_t unixtime() const;
+        char* am_pm();
+
 
     protected:
-        uint8_t yOff, m, d, hh, mm, ss;
+        uint8_t yOff, m, d, hh, mm, ss, hh_12h, dow;
+        bool pm;
 };
 
 class DS1672 {
