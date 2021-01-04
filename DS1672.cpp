@@ -144,7 +144,7 @@ uint32_t DateTime::unixtime() const {
     return t;
 }
 
-char* DateTime::am_pm() {
+const char* DateTime::am_pm() {
     if(pm) {
         return "PM";
     }

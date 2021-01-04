@@ -24,7 +24,7 @@ class DateTime {
         uint8_t dayOfWeek() const  { return dow; }
         uint32_t secondstime() const; // 32-bit times as seconds since 1/1/2000
         uint32_t unixtime() const;
-        char* am_pm();
+        const char* am_pm();
 
 
     protected:
