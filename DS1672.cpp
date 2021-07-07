@@ -9,6 +9,7 @@
 #define SECONDS_FROM_1970_TO_2000 946684800
 
 DS1672::DS1672() = default;
+DS1672::~DS1672() = default;
 
 // Utilities from JeeLabs/Ladyada
 

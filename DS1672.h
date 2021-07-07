@@ -35,6 +35,7 @@ class DateTime {
 class DS1672 {
     public:
         DS1672();
+        ~DS1672();
         void enable();
         void disable();
         DateTime get_time();
