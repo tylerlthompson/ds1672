@@ -80,7 +80,13 @@ DateTime::DateTime (uint32_t t) {
         hh_12h = hh - 12;
         pm=true;
     }
+    else if (hh == 0)
+    {
+        hh_12h = 12;
+        pm = false;
+    }
     else {
+        hh_12h = hh;
         pm = false;
     }
 
